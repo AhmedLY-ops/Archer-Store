@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>حقيبة التسوق | Archer Store</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { 
+            --primary: #00d2ff; 
+            --accent: #00ff99; 
+            --bg: #070912;
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.1);
+            --danger: #ff4d4d;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+
+        body { 
+            background: var(--bg) url('a.png') no-repeat center center fixed; 
+            background-size: cover;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            margin: 0; 
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; color: #f8fafc; padding: 20px 15px;
+        }
+
+        body::before { 
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+            background: radial-gradient(circle at top, rgba(7, 9, 18, 0.5), rgba(7, 9, 18, 0.95)); 
+            z-index: -1; 
+        }
+
+        .container { width: 100%; max-width: 480px; animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        
+        @keyframes slideUp { 
+            from { opacity: 0; transform: translateY(30px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; padding: 0 5px; }
+        .title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+
+        /* صندوق معلومات المستخدم */
+        .user-data-preview {
+            background: rgba(0, 210, 255, 0.08); 
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            border-radius: var(--radius-md); padding: 18px; margin-bottom: 20px; 
+            backdrop-filter: blur(12px); box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .data-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+        .data-row:last-child { margin-bottom: 0; }
+        .data-label { color: #94a3b8; font-weight: 500; }
+        .data-val { font-weight: 600; color: #fff; }
+
+        /* قائمة السلة */
+        .cart-list { 
+            background: var(--card-bg); border-radius: var(--radius-lg); 
+            border: 1px solid var(--border); padding: 8px; 
+            backdrop-filter: blur(20px); margin-bottom: 20px; 
+        }
+        .item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px; border-bottom: 1px solid var(--border);
+            transition: 0.3s;
+        }
+        .item:last-child { border-bottom: none; }
+        .item-info { display: flex; align-items: center; gap: 15px; }
+        .item-img { 
+            width: 55px; height: 55px; border-radius: 12px; 
+            object-fit: cover; border: 1px solid var(--border); 
+            background: rgba(255,255,255,0.05);
+        }
+        .item-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+        .item-price { color: var(--primary); font-size: 13px; font-weight: 800; }
+        
+        .del-btn { 
+            background: rgba(255, 77, 77, 0.15); border: none; color: #ff4d4d; 
+            width: 35px; height: 35px; border-radius: 10px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.2s;
+        }
+        .del-btn:hover { background: var(--danger); color: white; transform: scale(1.1); }
+
+        /* طرق الدفع */
+        .pay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .pay-card { 
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 18px; 
+            padding: 18px; text-align: center; cursor: pointer; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px); font-weight: 600; font-size: 15px;
+        }
+        .pay-card.active { 
+            border-color: var(--primary); background: rgba(0, 210, 255, 0.15); 
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.2); transform: translateY(-2px);
+        }
+
+        /* زر التأكيد النهائي */
+        .checkout-box {
+            background: linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+            border-radius: var(--radius-lg); padding: 25px; 
+            border: 1px solid var(--border); backdrop-filter: blur(25px);
+        }
+        .confirm-btn { 
+            width: 100%; border: none; 
+            background: linear-gradient(135deg, var(--primary), #0066ff); 
+            color: white; padding: 20px; border-radius: 18px; 
+            font-weight: 800; font-size: 18px; margin-top: 20px;
+            cursor: pointer; transition: 0.3s; 
+            box-shadow: 0 12px 24px rgba(0, 102, 255, 0.3);
+        }
+        .confirm-btn:active { transform: scale(0.98); }
+        .confirm-btn:disabled { opacity: 0.4; filter: grayscale(1); cursor: not-allowed; transform: none; }
+
+        .alert-missing {
+            background: rgba(255, 77, 77, 0.1); border: 1px solid var(--danger);
+            color: #ffb3b3; padding: 15px; border-radius: 15px; text-align: center;
+            font-size: 13px; margin-bottom: 20px; line-height: 1.5;
+        }
+
+        /* Responsive Tweaks */
+        @media (max-width: 370px) {
+            .title { font-size: 20px; }
+            .pay-card { padding: 12px; font-size: 13px; }
+            .item-name { font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <span class="title">مراجعة طلبك 🛍️</span>
+        <a href="index.html" style="color:#94a3b8; text-decoration:none; font-size:14px; font-weight:500;">إلغاء</a>
+    </div>
+
+    <div id="missingAlert" class="alert-missing" style="display: none;">
+        ⚠️ <strong>بياناتك غير مكتملة</strong>
+        <br>يرجى إضافة الهاتف والعنوان لإتمام الطلب.
+        <br><a href="auth/profile.html" style="color:var(--primary); font-weight:bold; text-decoration: none; display: inline-block; margin-top: 8px;">تحديث الملف الشخصي ←</a>
+    </div>
+
+    <div class="user-data-preview">
+        <div class="data-row">
+            <span class="data-label">العميل:</span>
+            <span id="pName" class="data-val">جاري التحميل...</span>
+        </div>
+        <div class="data-row">
+            <span class="data-label">الهاتف:</span>
+            <span id="pPhone" class="data-val">--</span>
+        </div>
+        <div class="data-row">
+            <span class="data-label">العنوان:</span>
+            <span id="pAddress" class="data-val">--</span>
+        </div>
+    </div>
+
+    <div id="cartDisplay" class="cart-list">
+        <!-- يتم توليده بواسطة JS -->
+    </div>
+
+    <div class="pay-grid">
+        <div class="pay-card active" onclick="setPay('كاش عند الاستلام', this)">💵 كاش</div>
+        <div class="pay-card" onclick="setPay('محفظة Archer', this)">💳 المحفظة</div>
+    </div>
+
+    <div class="checkout-box">
+        <div style="display:flex; justify-content:space-between; align-items: center;">
+            <span style="font-size:16px; color: #94a3b8;">إجمالي المبلغ:</span>
+            <span id="grandTotal" style="font-size:24px; font-weight:900; color:var(--accent);">0.00 د.ل</span>
+        </div>
+        <button id="submitBtn" class="confirm-btn" onclick="submitOrder()">تأكيد وإرسال الطلب</button>
+    </div>
+</div>
+
+<script>
+    // الجزء البرمجي الخاص بك يعمل بشكل ممتاز، لا يحتاج لتغيير في المنطق
+    const _URL = "https://bmcnlmxkfsrpcmjhbixg.supabase.co";
+    const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtY25sbXhrZnNycGNtamhiaXhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NDA1MDcsImV4cCI6MjA5MzMxNjUwN30.CO07kz6XQ2_MLZ1Y0feVttiKkwWqref_k4IfmY11KAw";
+    const sb = supabase.createClient(_URL, _KEY);
+
+    let cart = JSON.parse(localStorage.getItem('archer_cart')) || [];
+    let payMethod = "كاش عند الاستلام";
+    let userData = null;
+
+    async function fetchUser() {
+        const { data: { user } } = await sb.auth.getUser();
+        if (!user) { window.location.href = "auth.html"; return; }
+
+        const { data: profile } = await sb.from('Profiles').select('*').eq('id', user.id).single();
+        if (profile) {
+            userData = { ...profile, email: user.email };
+            document.getElementById('pName').innerText = profile.display_name || "غير محدد";
+            document.getElementById('pPhone').innerText = profile.phone || "ناقص";
+            document.getElementById('pAddress').innerText = profile.address || "ناقص";
+
+            if (!profile.phone || !profile.address) {
+                document.getElementById('missingAlert').style.display = "block";
+                document.getElementById('submitBtn').disabled = true;
+            }
+        }
+    }
+
+    function setPay(m, el) {
+        payMethod = m;
+        document.querySelectorAll('.pay-card').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function renderCart() {
+        const list = document.getElementById('cartDisplay');
+        let total = 0;
+        if (cart.length === 0) {
+            list.innerHTML = `<div style="padding:40px; text-align:center; color:#64748b;">حقيبتك فارغة حالياً..</div>`;
+            document.getElementById('submitBtn').disabled = true;
+            return;
+        }
+        list.innerHTML = cart.map((item, idx) => {
+            total += parseFloat(item.price);
+            return `
+                <div class="item">
+                    <div class="item-info">
+                        <img src="${item.image || 'placeholder.png'}" class="item-img">
+                        <div>
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-price">${item.price} د.ل</div>
+                        </div>
+                    </div>
+                    <button class="del-btn" onclick="removeItem(${idx})">✕</button>
+                </div>`;
+        }).join('');
+        document.getElementById('grandTotal').innerText = total.toFixed(2) + " د.ل";
+    }
+
+    function removeItem(idx) {
+        cart.splice(idx, 1);
+        localStorage.setItem('archer_cart', JSON.stringify(cart));
+        renderCart();
+    }
+
+    async function submitOrder() {
+        if (cart.length === 0) return;
+        const total = cart.reduce((s, i) => s + parseFloat(i.price), 0);
+
+        if (payMethod === "محفظة Archer" && parseFloat(userData.balance || 0) < total) {
+            alert("⚠️ رصيد محفظتك غير كافٍ.");
+            return;
+        }
+
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerText = "جاري الإرسال...";
+
+        try {
+            if (payMethod === "محفظة Archer") {
+                const { error: balErr } = await sb.from('Profiles')
+                    .update({ balance: userData.balance - total })
+                    .eq('id', userData.id);
+                if (balErr) throw new Error("خطأ في الرصيد");
+            }
+
+            const { error: orderErr } = await sb.from('orders').insert([{
+                user_id: userData.id,
+                email: userData.email,
+                phone: userData.phone,
+                address: userData.address,
+                customer_info: userData.display_name,
+                products: cart.map(i => i.name).join(', '),
+                variant: cart.map(i => i.variant || 'Standard').join(', '),
+                quantity: cart.length,
+                total_price: total,
+                product_price: total.toString(),
+                shipping_price: "0",
+                payment_method: payMethod,
+                status: 'قيد الانتظار'
+            }]);
+
+            if (orderErr) throw orderErr;
+
+            localStorage.removeItem('archer_cart');
+            alert("✅ تم استلام طلبك بنجاح!");
+            window.location.href = "index.html";
+
+        } catch (e) {
+            alert("❌ فشل الطلب: " + e.message);
+            btn.disabled = false;
+            btn.innerText = "تأكيد الطلب الآن";
+        }
+    }
+
+    window.onload = () => {
+        fetchUser();
+        renderCart();
+    };
+</script>
+</body>
+</html>
