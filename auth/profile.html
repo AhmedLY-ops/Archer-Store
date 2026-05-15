@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إعدادات الحساب | Archer Store</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { 
+            --primary: #00d2ff; 
+            --bg: #070912; 
+            --card: rgba(15, 23, 42, 0.75); 
+            --border: rgba(255, 255, 255, 0.1); 
+            --success: #00ffa3; 
+            --danger: #ff4d4d; 
+            --radius: 20px;
+        }
+        
+        * { box-sizing: border-box; transition: all 0.3s ease; }
+
+        body { 
+            background: url('../a.png') no-repeat center center fixed; 
+            background-size: cover; 
+            color: white; 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            margin: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at center, rgba(0,0,0,0.4) 0%, rgba(7,9,18,0.9) 100%); 
+            z-index: -1;
+        }
+
+        .profile-card { 
+            background: var(--card); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+            width: 100%; 
+            max-width: 500px; 
+            border-radius: var(--radius); 
+            padding: 35px; 
+            border: 1px solid var(--border); 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .avatar { 
+            width: 90px; height: 90px; border-radius: 50%; 
+            margin: 0 auto 15px; display: flex; align-items: center; 
+            justify-content: center; border: 3px solid var(--primary); 
+            background: #111; overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
+        }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        .status-grid { 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; 
+        }
+        .status-box { 
+            background: rgba(255, 255, 255, 0.05); padding: 12px; 
+            border-radius: 15px; border: 1px solid var(--border); text-align: center; 
+        }
+        .status-value { font-size: 16px; font-weight: 800; color: var(--success); margin-top: 4px; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        .field-group { display: flex; flex-direction: column; }
+        .full-width { grid-column: span 2; }
+
+        label { font-size: 12px; color: #94a3b8; margin-bottom: 6px; padding-right: 4px; font-weight: 500; }
+        
+        input { 
+            width: 100%; background: rgba(0, 0, 0, 0.2); 
+            border: 1px solid var(--border); padding: 14px; 
+            border-radius: 12px; color: white; outline: none; 
+            font-size: 14px;
+        }
+        input:focus { 
+            border-color: var(--primary); 
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.1);
+        }
+
+        .btn-save { 
+            grid-column: span 2; 
+            background: linear-gradient(135deg, var(--primary), #0066ff); 
+            color: white; border: none; padding: 16px; 
+            border-radius: 12px; font-weight: bold; cursor: pointer; 
+            margin-top: 10px; font-size: 16px;
+        }
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0, 102, 255, 0.3); }
+        .btn-save:active { transform: translateY(0); }
+
+        .btn-reset { 
+            grid-column: span 2; background: none; color: #94a3b8; 
+            border: 1px solid var(--border); padding: 10px; 
+            border-radius: 10px; cursor: pointer; font-size: 12px; margin-top: 5px;
+        }
+        .btn-reset:hover { background: rgba(255, 255, 255, 0.05); color: white; }
+
+        .back-link {
+            display: block; text-align: center; margin-top: 20px;
+            color: var(--primary); text-decoration: none; font-size: 13px;
+        }
+
+        /* تحسينات الشاشات الصغيرة */
+        @media (max-width: 480px) {
+            .profile-card { padding: 25px 20px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .full-width { grid-column: span 1; }
+            .status-grid { gap: 10px; }
+            h2 { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="profile-card">
+    <div style="text-align: center;">
+        <div id="userImg" class="avatar">👤</div>
+        <h2 id="displayNameTop" style="margin:0; font-weight: 800;">جاري التحميل...</h2>
+        <p id="userEmail" style="color:#94a3b8; font-size: 14px; margin: 8px 0 25px;"></p>
+    </div>
+
+    <div class="status-grid">
+        <div class="status-box">
+            <span style="font-size:11px; color: #94a3b8;">رصيد المحفظة</span>
+            <div id="userBalance" class="status-value">0.00 د.ل</div>
+        </div>
+        <div class="status-box">
+            <span style="font-size:11px; color: #94a3b8;">كود العميل</span>
+            <div id="userCode" class="status-value" style="color:var(--primary)">----</div>
+        </div>
+    </div>
+
+    <div class="form-grid">
+        <div class="field-group">
+            <label>الاسم الكامل</label>
+            <input type="text" id="newName" placeholder="أدخل اسمك">
+        </div>
+        <div class="field-group">
+            <label>رقم الهاتف</label>
+            <input type="tel" id="newPhone" placeholder="09XXXXXXXX">
+        </div>
+        <div class="field-group full-width">
+            <label>العنوان بالتفصيل</label>
+            <input type="text" id="newAddress" placeholder="المدينة، المنطقة...">
+        </div>
+        
+        <button class="btn-save" onclick="saveProfile()">حفظ التغييرات ✅</button>
+        <button class="btn-reset" onclick="resetPassword()">إرسال رابط تعيين كلمة المرور</button>
+    </div>
+
+    <a href="../index.html" class="back-link">← العودة للمتجر</a>
+</div>
+
+<script>
+    // الحفاظ على السكريبت الخاص بك كما هو مع تصحيح بسيط لـ avatars لضمان الجمالية
+    const _URL = "https://bmcnlmxkfsrpcmjhbixg.supabase.co";
+    const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtY25sbXhrZnNycGNtamhiaXhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NDA1MDcsImV4cCI6MjA5MzMxNjUwN30.CO07kz6XQ2_MLZ1Y0feVttiKkwWqref_k4IfmY11KAw";
+    const sb = supabase.createClient(_URL, _KEY);
+
+    async function loadData() {
+        const { data: { user } } = await sb.auth.getUser();
+        if (!user) {
+            window.location.href = "login.html"; // توجيه لتسجيل الدخول إذا لم يوجد مستخدم
+            return;
+        }
+        const { data: p } = await sb.from('Profiles').select('*').eq('id', user.id).single();
+        if (p) {
+            document.getElementById('displayNameTop').innerText = p.display_name || "مستخدم آرتشر";
+            document.getElementById('userEmail').innerText = user.email;
+            document.getElementById('userBalance').innerText = (p.balance || 0).toFixed(2) + " د.ل";
+            document.getElementById('userCode').innerText = p.customer_code || "----";
+            document.getElementById('newName').value = p.display_name || "";
+            document.getElementById('newPhone').value = p.phone || "";
+            document.getElementById('newAddress').value = p.address || "";
+            // تحديث الصورة الرمزية بناءً على الاسم
+            const avatarName = p.display_name ? encodeURIComponent(p.display_name) : encodeURIComponent(user.email);
+            document.getElementById('userImg').innerHTML = `<img src="https://ui-avatars.com/api/?name=${avatarName}&background=00d2ff&color=fff&bold=true">`;
+        }
+    }
+
+    async function saveProfile() {
+        const btn = document.querySelector('.btn-save');
+        btn.innerText = "جاري الحفظ...";
+        const { data: { user } } = await sb.auth.getUser();
+        const { error } = await sb.from('Profiles').update({
+            display_name: document.getElementById('newName').value,
+            phone: document.getElementById('newPhone').value,
+            address: document.getElementById('newAddress').value
+        }).eq('id', user.id);
+        
+        if(!error) {
+            alert("تم تحديث بياناتك بنجاح! ✨");
+            loadData();
+        } else {
+            alert("حدث خطأ أثناء الحفظ.");
+        }
+        btn.innerText = "حفظ التغييرات ✅";
+    }
+
+    async function resetPassword() {
+        const { data: { user } } = await sb.auth.getUser();
+        await sb.auth.resetPasswordForEmail(user.email);
+        alert("تم إرسال رابط تعيين كلمة المرور إلى بريدك الإلكتروني 📧");
+    }
+    
+    window.onload = loadData;
+</script>
+</body>
+</html>
