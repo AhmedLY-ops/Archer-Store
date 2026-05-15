@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Archer Store - الدخول</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --primary: #0096ff;
+      --primary-hover: #007acc;
+      --bg-dark: #0b0d17;
+      --input-bg: rgba(255, 255, 255, 0.05);
+      --card-bg: rgba(15, 20, 35, 0.8);
+      --border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    body { 
+      background: var(--bg-dark) url('../a.png') no-repeat center center fixed;
+      background-size: cover;
+      color: white; 
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      min-height: 100vh; 
+      margin: 0;
+      overflow: hidden;
+    }
+
+    /* طبقة تظليل فوق الخلفية لضمان وضوح النصوص */
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: -1;
+    }
+
+    .auth-card { 
+      background: var(--card-bg);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      padding: 40px 30px; 
+      border-radius: 28px; 
+      border: 1px solid var(--border-color); 
+      width: 90%; 
+      max-width: 400px; 
+      text-align: center; 
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      font-size: 28px;
+      margin-bottom: 30px;
+      font-weight: 700;
+      background: linear-gradient(to bottom, #fff, var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    input { 
+      width: 100%; 
+      padding: 15px; 
+      margin: 12px 0; 
+      border-radius: 12px; 
+      border: 1px solid var(--border-color); 
+      background: var(--input-bg); 
+      color: white; 
+      box-sizing: border-box; 
+      outline: none; 
+      font-size: 15px;
+      transition: 0.3s;
+    }
+
+    input:focus { 
+      border-color: var(--primary); 
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 10px rgba(0, 150, 255, 0.2);
+    }
+
+    button { 
+      width: 100%; 
+      padding: 16px; 
+      border-radius: 12px; 
+      border: none; 
+      background: var(--primary); 
+      color: white; 
+      font-weight: bold; 
+      cursor: pointer; 
+      margin-top: 20px; 
+      font-size: 17px; 
+      transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      box-shadow: 0 4px 15px rgba(0, 150, 255, 0.3);
+    }
+
+    button:hover { 
+      background: var(--primary-hover); 
+      transform: translateY(-2px); 
+      box-shadow: 0 6px 20px rgba(0, 150, 255, 0.4);
+    }
+
+    button:disabled {
+      background: #444;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .toggle-link { 
+      font-size: 14px; 
+      color: #bbb; 
+      cursor: pointer; 
+      margin-top: 25px; 
+      display: inline-block; 
+      transition: 0.3s;
+    }
+
+    .toggle-link:hover { 
+      color: var(--primary);
+    }
+
+    /* تحسينات للشاشات الصغيرة جداً */
+    @media (max-width: 400px) {
+      .auth-card {
+        padding: 30px 20px;
+      }
+      h2 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="auth-card">
+    <h2 id="form-title">تسجيل الدخول</h2>
+    
+    <div id="signup-fields" style="display: none;">
+      <input type="text" id="full-name" placeholder="الاسم الكامل">
+    </div>
+    
+    <input type="email" id="email" placeholder="البريد الإلكتروني">
+    <input type="password" id="password" placeholder="كلمة المرور">
+    
+    <button id="auth-btn" onclick="handleAuth()">دخول</button>
+    <span class="toggle-link" onclick="toggleAuth()" id="toggle-text">ليس لديك حساب؟ إنشاء حساب جديد</span>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const sb = supabase.createClient("https://bmcnlmxkfsrpcmjhbixg.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtY25sbXhrZnNycGNtamhiaXhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NDA1MDcsImV4cCI6MjA5MzMxNjUwN30.CO07kz6XQ2_MLZ1Y0feVttiKkwWqref_k4IfmY11KAw");
+    
+    let isLogin = true;
+
+    function toggleAuth() {
+      isLogin = !isLogin;
+      document.getElementById('form-title').innerText = isLogin ? "تسجيل الدخول" : "إنشاء حساب";
+      document.getElementById('signup-fields').style.display = isLogin ? "none" : "block";
+      document.getElementById('auth-btn').innerText = isLogin ? "دخول" : "تسجيل حساب جديد";
+      document.getElementById('toggle-text').innerText = isLogin ? "ليس لديك حساب؟ إنشاء حساب جديد" : "لديك حساب؟ سجل دخولك";
+      
+      // إضافة حركة خفيفة عند التبديل
+      document.querySelector('.auth-card').style.animation = 'none';
+      void document.querySelector('.auth-card').offsetWidth; // Trigger reflow
+      document.querySelector('.auth-card').style.animation = 'fadeIn 0.4s ease-out';
+    }
+
+    async function handleAuth() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('auth-btn');
+
+      if(!email || !password) return alert("الرجاء إدخال البيانات كاملة");
+      
+      btn.innerText = "جاري المعالجة...";
+      btn.disabled = true;
+
+      if (isLogin) {
+        const { error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) {
+          alert("خطأ في الدخول: " + error.message);
+          btn.disabled = false;
+          btn.innerText = "دخول";
+        } else {
+          window.location.href = "../index.html";
+        }
+      } else {
+        const fullName = document.getElementById('full-name').value;
+        if(!fullName) { 
+          alert("الرجاء كتابة اسمك"); 
+          btn.disabled = false; 
+          btn.innerText = "تسجيل حساب جديد";
+          return; 
+        }
+        
+        const randomCode = Math.floor(1000 + Math.random() * 9000).toString();
+        
+        const { error } = await sb.auth.signUp({
+          email, password,
+          options: {
+            data: { 
+              display_name: fullName, 
+              balance: "0.00", 
+              customer_code: randomCode 
+            }
+          }
+        });
+        
+        if (error) {
+          alert("خطأ في التسجيل: " + error.message);
+        } else {
+          alert("تم التسجيل بنجاح! يمكنك الآن تسجيل الدخول.");
+          toggleAuth(); // العودة لوضع الدخول تلقائياً
+        }
+        btn.disabled = false;
+        btn.innerText = "تسجيل حساب جديد";
+      }
+    }
+  </script>
+</body>
+</html>
