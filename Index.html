@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- الوسوم الأساسية (SEO) -->
+    <title>Archer Store | القمة في الأداء والتميز</title>
+    <meta name="description" content="Archer Store هو وجهتك الأولى لأفضل معدات الألعاب (Gaming Gears) وألعاب PC بأفضل الأسعار in ليبيا. استمتع بتجربة تسوق فريدة وأداء لا يضاهى.">
+    <meta name="keywords" content="متجر آرشر, Archer Store, ماوسات قيمنق, ألعاب كمبيوتر, شحن ألعاب, معدات ألعاب ليبيا, Steam, PC Games">
+    <meta name="author" content="Archer Store">
+    <meta name="robots" content="index, follow">
+
+    <!-- تحسين العناوين لمواقع التواصل الاجتماعي -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Archer Store | متجر الآرشر - القمة في الأداء">
+    <meta property="og:description" content="احصل على أقوى الماوسات الاحترافية وأحدث ألعاب الـ PC. شحن سريع ودعم فني متميز.">
+    <meta property="og:image" content="logo.png">
+
+    <!-- أيقونة الموقع -->
+    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="logo.png">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        :root { 
+            --neon-blue: #00d2ff; 
+            --neon-purple: #9d50bb;
+            --glass: rgba(10, 15, 30, 0.92); /* زيادة التعتيم قليلاً لتقليل الاعتماد على الـ Blur */
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --whatsapp-green: #25D366;
+            --facebook-blue: #1877F2;
+            --smooth: all 0.3s ease; /* تحويل إلى التوقيت العادي لراحة المعالج */
+        }
+        
+        body { 
+            padding-top: 140px; 
+            background: #070912 url('a.png') no-repeat center center fixed;
+            background-size: cover;
+            color: #f1f5f9; 
+            margin: 0; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at center, rgba(7, 9, 18, 0.3) 0%, rgba(7, 9, 18, 0.85) 100%);
+            z-index: -1;
+        }
+
+        /* شريط التنقل العلوي - تم تخفيف الـ Blur لتحسين أداء الهاتف */
+        .user-navbar {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            width: 95%; max-width: 1100px; z-index: 1000;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 25px; 
+            background: var(--glass);
+            backdrop-filter: blur(8px); /* تقليل النسبة من 25px إلى 8px لحل اللاج تماماً */
+            -webkit-backdrop-filter: blur(8px); 
+            border: 1px solid var(--glass-border);
+            border-radius: 100px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            animation: slideDown 0.5s ease-out;
+            box-sizing: border-box;
+        }
+
+        .user-tags-container { display: flex; gap: 10px; align-items: center; }
+        
+        .user-avatar {
+            width: 35px; height: 35px; flex-shrink: 0;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 15px;
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .user-tag {
+            font-size: 11px; padding: 6px 14px; border-radius: 50px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            white-space: nowrap;
+        }
+        .tag-balance { border-color: var(--neon-blue); color: var(--neon-blue); font-weight: bold; }
+
+        .nav-actions { display: flex; gap: 12px; align-items: center; }
+        .nav-btn { text-decoration: none; font-size: 13px; color: #cbd5e1; transition: var(--smooth); border:none; background:none; cursor:pointer; }
+        
+        /* زر المعلومات الكبير والمميز */
+        .info-btn-large {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 20px;
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+            transition: var(--smooth);
+        }
+
+        .info-btn-large:hover {
+            background: var(--neon-blue);
+            transform: scale(1.05);
+            box-shadow: 0 0 25px var(--neon-blue);
+        }
+
+        /* اللوجو الرئيسي */
+        .logo-container { text-align: center; margin-bottom: 40px; animation: zoomIn 0.6s ease-out; }
+        .main-logo { 
+            width: clamp(100px, 20vw, 150px);
+            height: auto;
+            aspect-ratio: 1/1;
+            object-fit: cover; border-radius: 50%;
+            border: 3px solid var(--neon-blue); 
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.4);
+        }
+
+        /* شبكة المنتجات */
+        .container { 
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 350px));
+            justify-content: center; 
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .platform-item {
+            position: relative; width: 100%; aspect-ratio: 4/5;
+            overflow: hidden; border-radius: 35px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            text-decoration: none;
+            transition: var(--smooth);
+            will-change: transform; /* تهيئة المتصفح لتسريع الأنميشن */
+        }
+
+        .platform-item img { 
+            width: 100%; height: 100%; object-fit: cover; 
+            transition: transform 0.5s ease; opacity: 0.6; /* زيادة الشفافية قليلاً افتراضياً لتقليل مجهود الرندرة */
+        }
+
+        .overlay {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 80%;
+            background: linear-gradient(to top, rgba(7, 9, 18, 1) 20%, transparent 100%);
+            z-index: 2;
+        }
+
+        .content {
+            position: absolute; bottom: 35px; width: 100%;
+            text-align: center; z-index: 3;
+        }
+        .platform-name { font-size: clamp(1.2rem, 3vw, 1.5rem); font-weight: 800; color: white; display: block; }
+        .platform-desc { font-size: 12px; color: var(--neon-blue); letter-spacing: 1px; }
+
+        .platform-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--neon-blue);
+            box-shadow: 0 15px 30px rgba(0, 210, 255, 0.2);
+        }
+        .platform-item:hover img { transform: scale(1.05); opacity: 0.8; }
+
+        /* الأزرار العائمة السفلية */
+        .floating-controls {
+            position: fixed; bottom: 30px; width: 100%;
+            display: flex; justify-content: space-between;
+            padding: 0 30px; box-sizing: border-box;
+            pointer-events: none; z-index: 1001;
+        }
+        .social-group, .action-group { display: flex; gap: 12px; pointer-events: auto; }
+        .float-btn {
+            width: 52px; height: 52px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            transition: var(--smooth);
+            text-decoration: none;
+        }
+        .float-btn:hover { transform: scale(1.05) translateY(-3px); }
+        .float-btn img { width: 24px; }
+        
+        .whatsapp-btn { background: var(--whatsapp-green); }
+        .facebook-btn { background: var(--facebook-blue); }
+        .track-btn-fixed { background: var(--neon-purple); border: 1px solid rgba(255,255,255,0.1); }
+        .cart-btn-fixed { background: var(--neon-blue); }
+
+        @keyframes slideDown { from { transform: translate(-50%, -60px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        /* استجابة الموبايل */
+        @media (max-width: 768px) {
+            body { padding-top: 110px; }
+            .user-navbar { top: 10px; padding: 8px 15px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(10, 15, 30, 0.98); } /* إلغاء البلور بالكامل على شاشات الموبايل لسرعة خارقة */
+            .user-tag:not(.tag-balance) { display: none; }
+            .container { grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 15px; }
+            .info-btn-large { width: 38px; height: 38px; font-size: 16px; }
+            .floating-controls { bottom: 15px; padding: 0 15px; }
+            .float-btn { width: 46px; height: 46px; border-radius: 12px; }
+            .float-btn img { width: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- شريط العميل العلوي -->
+    <nav class="user-navbar" id="user-section">
+        <!-- قسم اليمين: اللوجو النصي -->
+        <div style="color: var(--neon-blue); font-weight: 900; font-size: 14px; letter-spacing: 1px;">ARCHER STORE</div>
+        
+        <!-- قسم اليسار: الأزرار -->
+        <div class="nav-actions">
+            <!-- زر المعلومات -->
+            <a href="information.html" class="info-btn-large" title="نبذة عن المتجر">ℹ️</a>
+            
+            <a href="auth/auth.html" class="nav-btn" style="color:white; background: var(--neon-blue); padding: 8px 18px; border-radius: 50px; font-weight: 600;">دخول</a>
+        </div>
+    </nav>
+
+    <!-- شعار المتجر -->
+    <div class="logo-container">
+        <img src="logo.png" class="main-logo" alt="Archer Store">
+    </div>
+
+    <!-- أقسام المنتجات -->
+    <div class="container">
+        <a href="Mouses/mouses.html" class="platform-item">
+            <div class="img-wrapper"><img src="Mouses/mouse.jpg" alt="Mouses"></div>
+            <div class="overlay"></div>
+            <div class="content">
+                <span class="platform-name">الماوسات</span>
+                <span class="platform-desc">PRO GEARS</span>
+            </div>
+        </a>
+        
+        <a href="PCGames/pcgame.html" class="platform-item">
+            <div class="img-wrapper"><img src="PCGames/pcgame.jpg" alt="PC Games"></div>
+            <div class="overlay"></div>
+            <div class="content">
+                <span class="platform-name">ألعاب PC</span>
+                <span class="platform-desc">STEAM HUB</span>
+            </div>
+        </a>
+    </div>
+
+    <!-- الأزرار العائمة السفلية -->
+    <div class="floating-controls">
+        <div class="social-group">
+            <a href="https://wa.me/218919718809" target="_blank" class="float-btn whatsapp-btn">
+                <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
+            </a>
+            <a href="https://www.facebook.com/share/1B6gGToRF8/" target="_blank" class="float-btn facebook-btn">
+                <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook">
+            </a>
+        </div>
+        
+        <div class="action-group">
+            <a href="track-orders.html" class="float-btn track-btn-fixed" title="تتبع طلبك">
+                <img src="https://cdn-icons-png.flaticon.com/512/1671/1671040.png" alt="Track">
+            </a>
+            <a href="orders.html" class="float-btn cart-btn-fixed" title="السلة والطلبات">
+                <img src="https://cdn-icons-png.flaticon.com/512/1170/1170678.png" alt="Orders">
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const _URL = "https://bmcnlmxkfsrpcmjhbixg.supabase.co";
+        const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtY25sbXhrZnNycGNtamhiaXhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NDA1MDcsImV4cCI6MjA5MzMxNjUwN30.CO07kz6XQ2_MLZ1Y0feVttiKkwWqref_k4IfmY11KAw";
+        const sb = supabase.createClient(_URL, _KEY);
+
+        async function checkUser() {
+            const section = document.getElementById('user-section');
+            const { data: { user } } = await sb.auth.getUser();
+
+            if (user) {
+                const { data: profile } = await sb.from('Profiles').select('*').eq('id', user.id).single();
+                
+                if (profile) {
+                    const name = profile.display_name || "مستخدم";
+                    const firstLetter = name.charAt(0).toUpperCase();
+
+                    section.innerHTML = `
+                        <div style="color: var(--neon-blue); font-weight: 900; font-size: 14px; letter-spacing: 1px;">ARCHER STORE</div>
+                        
+                        <div class="user-tags-container">
+                            <div class="user-avatar">${firstLetter}</div>
+                            <div class="user-tag">👤 ${name}</div>
+                            <div class="user-tag tag-balance">💰 ${parseFloat(profile.balance || 0).toFixed(2)} د.ل</div>
+                        </div>
+
+                        <div class="nav-actions">
+                            <a href="information.html" class="info-btn-large" title="نبذة عن المتجر">ℹ️</a>
+                            <a href="auth/profile.html" class="nav-btn" title="الاعدادات">⚙️</a>
+                            <button onclick="logout()" class="nav-btn" style="color:#ff4d4d; font-weight:600;">خروج</button>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        async function logout() { 
+            await sb.auth.signOut(); 
+            location.reload(); 
+        }
+
+        window.onload = checkUser;
+    </script>
+</body>
+</html>

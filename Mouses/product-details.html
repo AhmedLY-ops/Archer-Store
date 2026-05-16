@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>تفاصيل المنتج | Archer Store</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { 
+            --primary: #00d2ff; 
+            --accent: #00ff99; 
+            --bg: #070912;
+            --card-bg: rgba(13, 17, 23, 0.95); /* زيادة التعتيم لإلغاء الحاجة للـ Blur المستهلك للموارد */
+            --border: rgba(255, 255, 255, 0.1);
+            --radius-lg: 28px;
+            --radius-md: 18px;
+            --smooth: all 0.25s ease; /* توحيد وتبسيط الحركات السلسة */
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background: var(--bg);
+            color: #f8fafc;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0; padding: 0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* تحسين الخلفية الديناميكية */
+        #dynamicBg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('../a.png') center/cover no-repeat;
+            z-index: -2;
+        }
+
+        /* طبقة تعتيم غامقة ومريحة للمتصفح بدون استخدام Blur الشاشة بالكامل */
+        .bg-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(7, 9, 18, 0.65), rgba(7, 9, 18, 0.95));
+            z-index: -1;
+        }
+
+        .main-content {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px 140px;
+            animation: fadeIn 0.4s ease-out;
+            will-change: transform, opacity;
+        }
+
+        .product-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: start;
+        }
+
+        /* المعرض */
+        .gallery-section {
+            width: 100%;
+            position: sticky;
+            top: 40px;
+        }
+
+        .main-frame {
+            background: rgba(255,255,255,0.03);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .main-frame img {
+            width: 85%;
+            height: 85%;
+            object-fit: contain;
+            transition: transform 0.4s ease;
+        }
+
+        .thumb-list {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scrollbar-width: none;
+        }
+
+        .thumb-list img {
+            width: 70px; height: 70px;
+            border-radius: var(--radius-md);
+            object-fit: cover;
+            opacity: 0.5;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: var(--smooth);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .thumb-list img.active {
+            opacity: 1;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* بطاقة التفاصيل المحسنة رندرتها */
+        .details-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .premium-tag {
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            display: inline-block;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        h1 { font-size: clamp(24px, 3vw, 32px); margin: 0 0 10px 0; font-weight: 800; }
+        .price-val { font-size: 30px; color: var(--accent); font-weight: 900; display: block; margin-bottom: 25px; }
+
+        .desc-area {
+            background: rgba(255,255,255,0.02);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            color: #94a3b8;
+            font-size: 15px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .qty-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            background: rgba(0,0,0,0.3);
+            padding: 15px 25px;
+            border-radius: 100px;
+        }
+
+        .qty-picker { display: flex; align-items: center; gap: 15px; }
+        .btn-q {
+            width: 35px; height: 35px;
+            border-radius: 50%; border: 1px solid var(--border);
+            background: rgba(255,255,255,0.1);
+            color: white; cursor: pointer; transition: var(--smooth);
+        }
+        .btn-q:hover { background: var(--primary); color: #000; }
+
+        .actions-flex { display: flex; flex-direction: column; gap: 15px; }
+
+        .btn-add {
+            background: var(--primary);
+            color: #000; border: none; padding: 20px;
+            border-radius: var(--radius-md); font-weight: 800; font-size: 18px;
+            cursor: pointer; transition: var(--smooth);
+        }
+
+        .btn-add:hover { filter: brightness(1.1); transform: scale(1.01); }
+
+        .btn-cart-link {
+            text-align: center; color: var(--primary); text-decoration: none;
+            font-weight: 600; font-size: 14px; padding: 10px;
+        }
+
+        /* Navbar الكلاسيكي الخفيف السلس */
+        .nav-bar {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            width: fit-content; min-width: 280px;
+            background: rgba(13, 17, 23, 0.98);
+            border-radius: 100px; padding: 10px 30px;
+            display: flex; gap: 40px;
+            border: 1px solid var(--border); z-index: 1000;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* الشاشات المتوسطة والصغيرة */
+        @media (max-width: 992px) {
+            .product-container { grid-template-columns: 1fr; gap: 30px; }
+            .gallery-section { position: static; }
+            .main-content { padding-top: 20px; }
+            .details-card { padding: 30px 20px; }
+        }
+
+        @media (max-width: 600px) {
+            .main-content { padding-bottom: 120px; }
+            .nav-bar { bottom: 20px; gap: 30px; width: 90%; justify-content: center; }
+            .qty-row { border-radius: var(--radius-md); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="dynamicBg"></div>
+    <div class="bg-overlay"></div>
+
+    <div class="main-content">
+        <div class="product-container" id="contentRoot">
+            <div style="grid-column: 1/-1; text-align: center; padding: 150px 20px;">
+                <div style="width: 45px; height: 45px; border: 3px solid var(--primary); border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; margin: 0 auto 20px;"></div>
+                <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+                <p style="color: var(--primary); font-weight: bold; font-size: 1.1rem;">يتم الآن تجهيز التفاصيل...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-bar">
+        <a href="../../index.html" class="nav-btn"><img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" width="22" style="filter:invert(1)"></a>
+        <a href="https://wa.me/218919718809" class="nav-btn"><img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" width="24"></a>
+        <a href="../orders.html" class="nav-btn"><img src="https://cdn-icons-png.flaticon.com/512/1170/1170678.png" width="24" style="filter:invert(1)"></a>
+    </div>
+
+<script>
+    const _URL = "https://bmcnlmxkfsrpcmjhbixg.supabase.co";
+    const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtY25sbXhrZnNycGNtamhiaXhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NDA1MDcsImV4cCI6MjA5MzMxNjUwN30.CO07kz6XQ2_MLZ1Y0feVttiKkwWqref_k4IfmY11KAw";
+    const sb = supabase.createClient(_URL, _KEY);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id');
+    let productObj = null;
+    let selectedQty = 1;
+
+    async function initProduct() {
+        if (!productId) return;
+        const { data: p, error } = await sb.from('products').select('*').eq('id', productId).single();
+        if (error || !p) {
+            document.getElementById('contentRoot').innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 100px;">المنتج غير متوفر حالياً.</div>`;
+            return;
+        }
+
+        productObj = p;
+        const images = [p.image_url, p.img2, p.img3, p.img4, p.img5].filter(u => u && u !== "null" && u !== "");
+
+        document.getElementById('contentRoot').innerHTML = `
+            <div class="gallery-section">
+                <div class="main-frame">
+                    <img src="${images[0]}" id="mainDisplay" alt="${p.name}">
+                </div>
+                <div class="thumb-list">
+                    ${images.map((u, i) => `<img src="${u}" class="${i===0?'active':''}" onclick="setImg(this)" alt="thumbnail">`).join('')}
+                </div>
+            </div>
+            <div class="details-card">
+                <span class="premium-tag">Archer Original</span>
+                <h1>${p.name}</h1>
+                <span class="price-val">${p.price} د.ل</span>
+                
+                <div class="qty-row">
+                    <span style="font-weight: 600; color: #f8fafc;">الكمية</span>
+                    <div class="qty-picker">
+                        <button class="btn-q" onclick="changeQty(-1)">-</button>
+                        <span id="qNum" style="font-weight:800; min-width:20px; text-align:center">1</span>
+                        <button class="btn-q" onclick="changeQty(1)">+</button>
+                    </div>
+                </div>
+
+                <div class="desc-area">${p.description || 'لا يوجد وصف متاح.'}</div>
+                
+                <div class="actions-flex">
+                    <button class="btn-add" onclick="pushToCart()">إضافة للسلة 🛒</button>
+                    <a href="../orders.html" class="btn-cart-link">إتمام عملية الشراء ←</a>
+                </div>
+            </div>
+        `;
+    }
+
+    function setImg(el) {
+        document.getElementById('mainDisplay').src = el.src;
+        document.querySelectorAll('.thumb-list img').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function changeQty(v) {
+        selectedQty = Math.max(1, selectedQty + v);
+        document.getElementById('qNum').innerText = selectedQty;
+    }
+
+    function pushToCart() {
+        let cart = JSON.parse(localStorage.getItem('archer_cart')) || [];
+        cart.push({
+            id: productObj.id,
+            name: productObj.name,
+            price: (parseFloat(productObj.price)).toFixed(2),
+            image: productObj.image_url,
+            quantity: selectedQty
+        });
+        localStorage.setItem('archer_cart', JSON.stringify(cart));
+        
+        const btn = document.querySelector('.btn-add');
+        btn.innerHTML = "✅ تمت الإضافة";
+        btn.style.background = "var(--accent)";
+        setTimeout(() => {
+            btn.innerHTML = "إضافة للسلة 🛒";
+            btn.style.background = "var(--primary)";
+        }, 1500);
+    }
+
+    window.onload = initProduct;
+</script>
+</body>
+</html>

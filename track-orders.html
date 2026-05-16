@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>طلباتي | Archer Store</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { 
+            --primary: #00d2ff; --accent: #00ff99; --bg: #070912;
+            --card-bg: rgba(15, 22, 36, 0.95); /* خلفية داكنة ومعتمة تلغي الحاجة للـ Blur المستهلك للأداء */
+            --border: rgba(255, 255, 255, 0.08); --danger: #ff4d4d;
+            --whatsapp: #25D366; --shipping: #ffcc00;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            background: var(--bg);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; margin: 0; 
+            display: flex; justify-content: center; min-height: 100vh; color: white; padding: 15px;
+        }
+
+        /* تحسين إدارة الخلفية الثابتة لضمان سلاسة التمرير التامة */
+        #dynamicBg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('a.png') center/cover no-repeat;
+            z-index: -2;
+        }
+
+        .bg-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at top, rgba(11, 17, 26, 0.6), #070912);
+            z-index: -1;
+        }
+
+        .main-wrapper { width: 100%; max-width: 550px; margin-top: 20px; }
+
+        .page-title { text-align: center; font-size: clamp(22px, 5vw, 28px); font-weight: 800; margin-bottom: 25px; color: var(--primary); text-shadow: 0 0 15px rgba(0,210,255,0.3); }
+
+        .order-card { 
+            background: var(--card-bg); padding: clamp(15px, 4vw, 25px); border-radius: 24px; 
+            border: 1px solid var(--border); margin-bottom: 20px; 
+            animation: slideUp 0.4s ease-out forwards; opacity: 0;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            will-change: transform, opacity;
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .status-header { display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: bold; color: var(--primary); margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
+        .order-id-badge { font-size: 11px; background: rgba(255,255,255,0.07); padding: 5px 12px; border-radius: 50px; color: #aaa; letter-spacing: 0.5px; }
+
+        /* شريط التتبع المطور */
+        .track-wrapper { display: flex; justify-content: space-between; margin: 35px 0 25px; position: relative; }
+        .track-line-bg { position: absolute; top: 12px; left: 5%; right: 5%; height: 2px; background: rgba(255,255,255,0.1); z-index: 0; }
+        .track-line-progress { position: absolute; top: 12px; right: 5%; height: 2px; background: var(--primary); z-index: 1; transition: width 0.8s ease; box-shadow: 0 0 8px var(--primary); }
+        
+        .dot { position: relative; z-index: 2; width: 19%; text-align: center; }
+        .dot-icon { 
+            width: 24px; height: 24px; background: #1a1f26; border: 2px solid #333; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            margin: 0 auto 10px; font-size: 10px; color: #555; transition: all 0.2s;
+        }
+        .dot.active .dot-icon { border-color: var(--primary); color: white; background: var(--primary); box-shadow: 0 0 12px rgba(0,210,255,0.4); }
+        .dot-label { font-size: clamp(7px, 2vw, 9px); color: #777; font-weight: 600; line-height: 1.2; display: block; height: 20px; }
+        .dot.active .dot-label { color: var(--primary); }
+
+        /* تفاصيل الطلب */
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; font-size: 13px; }
+        .detail-item { background: rgba(255,255,255,0.02); padding: 12px; border-radius: 15px; border: 1px solid var(--border); }
+        .detail-label { color: #888; display: block; margin-bottom: 5px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .detail-value { font-weight: 700; color: #f0f0f0; line-height: 1.4; }
+        
+        .shipping-item { border-color: rgba(255, 204, 0, 0.2); background: rgba(255, 204, 0, 0.03); }
+        .shipping-item .detail-label { color: var(--shipping); }
+
+        .button-group { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .confirm-btn { 
+            width: 100%; background: var(--whatsapp); color: white; border: none; padding: 14px; 
+            border-radius: 16px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; 
+            display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.2);
+        }
+        .confirm-btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
+        
+        .cancel-btn { 
+            width: 100%; background: transparent; color: var(--danger); border: 1px solid rgba(255, 77, 77, 0.2); 
+            padding: 12px; border-radius: 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; 
+        }
+        .cancel-btn:hover { background: rgba(255, 77, 77, 0.08); border-color: var(--danger); }
+        
+        .btn-home { 
+            display: block; width: fit-content; margin: 30px auto; background: var(--primary); 
+            color: white; text-decoration: none; padding: 14px 40px; border-radius: 50px; 
+            font-weight: 800; font-size: 15px; transition: all 0.2s ease;
+            box-shadow: 0 5px 20px rgba(0, 210, 255, 0.25);
+        }
+        .btn-home:hover { transform: scale(1.03); }
+
+        .no-orders { text-align: center; padding: 60px 20px; background: var(--card-bg); border-radius: 30px; border: 1px dashed var(--border); }
+
+        @media (max-width: 380px) {
+            .track-wrapper { margin: 25px 0 15px; }
+            .dot-icon { width: 20px; height: 20px; font-size: 9px; }
+            .details-grid { grid-template-columns: 1fr; }
+            .detail-item { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="dynamicBg"></div>
+<div class="bg-overlay"></div>
+
+<div class="main-wrapper">
+    <div class="page-title">تتبع طلباتي ✨</div>
+    <div id="ordersContainer">
+        <div style="text-align: center; padding: 40px; color: var(--primary);">
+            <span style="font-size: 24px; display: block; margin-bottom: 10px;">⌛</span>
+            جاري تحميل طلباتك...
+        </div>
+    </div>
+    <a href="index.html" class="btn-home">العودة للمتجر</a>
+</div>
+
+<script>
+    const _URL = "https://bmcnlmxkfsrpcmjhbixg.supabase.co";
+    const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtY25sbXhrZnNycGNtamhiaXhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NDA1MDcsImV4cCI6MjA5MzMxNjUwN30.CO07kz6XQ2_MLZ1Y0feVttiKkwWqref_k4IfmY11KAw";
+    const sb = supabase.createClient(_URL, _KEY);
+    const states = ["قيد الانتظار", "تأكيد الطلب", "التجهيز", "التوصيل", "تم التسليم"];
+
+    async function fetchMyOrders() {
+        const { data: { user } } = await sb.auth.getUser();
+        if (!user) {
+            document.getElementById('ordersContainer').innerHTML = `<div class="no-orders"><h3>يرجى تسجيل الدخول</h3></div>`;
+            return;
+        }
+        
+        const { data: orders, error } = await sb.from('orders').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+        
+        if (error || !orders || orders.length === 0) {
+            document.getElementById('ordersContainer').innerHTML = `<div class="no-orders"><h3>لا توجد طلبات بعد 📦</h3></div>`;
+            return;
+        }
+        
+        renderOrders(orders, user);
+    }
+
+    async function cancelOrder(orderId) {
+        const numericId = parseInt(orderId);
+        if (isNaN(numericId)) return alert("خطأ في معرف الطلب");
+        if (!confirm("هل أنت متأكد من إلغاء هذا الطلب؟")) return;
+
+        try {
+            const { data: { user } } = await sb.auth.getUser();
+            const { error } = await sb.from('orders').delete().eq('order_id', numericId).eq('user_id', user.id);
+            if (error) throw error;
+            alert("تم إلغاء الطلب بنجاح");
+            fetchMyOrders();
+        } catch (err) {
+            alert("حدث خطأ: " + err.message);
+        }
+    }
+
+    function sendToWhatsApp(orderId, phone, username, address) {
+        const whatsappNumber = "218919718809";
+        const message = `السلام عليكم، أريد تأكيد طلبي:
+📦 كود الطلب: ${orderId}
+👤 الإسم: ${username}
+📞 رقم الهاتف: ${phone}
+📍 المكان: ${address}
+---
+شكراً لكم.`;
+        
+        window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
+    }
+
+    function renderOrders(orders, user) {
+        const container = document.getElementById('ordersContainer');
+        container.innerHTML = '';
+        
+        const accountName = user.user_metadata.full_name || user.user_metadata.name || user.email.split('@')[0];
+
+        orders.forEach((o, index) => {
+            let currentStatus = o.status;
+            let idx = states.findIndex(s => currentStatus.includes(s));
+            if (idx === -1) idx = 0;
+            
+            let progressWidth = (idx / (states.length - 1)) * 90;
+            const canCancel = (idx === 0);
+            const showShipping = idx >= 2; 
+
+            container.innerHTML += `
+                <div class="order-card" style="animation-delay: ${index * 0.05}s">
+                    <div class="status-header">
+                        <span>${o.status}</span>
+                        <span class="order-id-badge">#${o.order_id}</span>
+                    </div>
+                    <div class="track-wrapper">
+                        <div class="track-line-bg"></div>
+                        <div class="track-line-progress" style="width: ${progressWidth}%"></div>
+                        ${states.map((s, i) => `
+                            <div class="dot ${i <= idx ? 'active' : ''}">
+                                <div class="dot-icon">${i < idx ? '✓' : (i === idx ? '●' : '')}</div>
+                                <div class="dot-label">${s}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="details-grid">
+                        <div class="detail-item" style="grid-column: span 2;">
+                            <span class="detail-label">المنتجات المحجوزة</span>
+                            <span class="detail-value">${o.products}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">سعر الأصناف</span>
+                            <span class="detail-value">${o.total_price} د.ل</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">وسيلة الدفع</span>
+                            <span class="detail-value">${o.payment_method || 'كاش'}</span>
+                        </div>
+                        ${showShipping ? `
+                            <div class="detail-item shipping-item" style="grid-column: span 2;">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <div>
+                                        <span class="detail-label">تكلفة التوصيل</span>
+                                        <span class="detail-value">${o.shipping_price || '0'} د.ل</span>
+                                    </div>
+                                    <div style="text-align:left;">
+                                        <span class="detail-label">الإجمالي النهائي</span>
+                                        <span class="detail-value" style="color:var(--accent); font-size:16px;">${parseFloat(o.total_price) + parseFloat(o.shipping_price || 0)} د.ل</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="button-group">
+                        ${canCancel ? `
+                            <button class="confirm-btn" onclick="sendToWhatsApp('${o.order_id}', '${o.phone}', '${accountName}', '${o.address}')">
+                                تأكيد عبر واتساب ✅
+                            </button>
+                            <button class="cancel-btn" onclick="cancelOrder('${o.order_id}')">إلغاء هذا الطلب ✕</button>
+                        ` : ''}
+                    </div>
+                </div>`;
+        });
+    }
+    window.onload = fetchMyOrders;
+</script>
+</body>
+</html>

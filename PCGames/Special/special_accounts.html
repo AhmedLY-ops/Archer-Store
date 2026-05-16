@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    
+    <!-- Meta Tags لتحسين SEO والعناوين -->
+    <title>حسابات مميزة | Archer Store - أرشر ستور</title>
+    <meta name="description" content="اكتشف حسابات الألعاب النادرة والمميزة بأسعار تنافسية. ضمان وأمان وحصرية من Archer Store.">
+    <meta name="keywords" content="حسابات ألعاب، حسابات نادرة، أرشر ستور، Archer Store، حسابات ستيم، ألعاب فيديو">
+    <meta name="author" content="Archer Store">
+
+    <!-- Open Graph (Facebook, WhatsApp) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="حسابات مميزة | Archer Store - أرشر ستور">
+    <meta property="og:description" content="عروض حصرية وحسابات نادرة للألعاب بملكية كاملة وضمان.">
+    <meta property="og:image" content="https://archerstore.netlify.app/a.png">
+    <meta property="og:url" content="https://archerstore.netlify.app">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="حسابات مميزة | Archer Store">
+    <meta name="twitter:image" content="https://archerstore.netlify.app/a.png">
+
+    <!-- تحميل Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        :root { 
+            --primary: #00d2ff; 
+            --accent: #00ff99; 
+            --bg: #070912;
+            --card-bg: rgba(13, 17, 23, 0.96); /* تعديل الخلفية لتكون معتمة بدلاً من الـ Blur لحل مشكلة التقطيع نهائياً */
+            --border: rgba(255, 255, 255, 0.1);
+            --glow: rgba(0, 210, 255, 0.3);
+            --transition: cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            background: var(--bg);
+            color: white; 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            margin: 0; padding: 0; 
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* عزل الخلفية الثابتة في عنصر مستقل ومحسن لضمان تجربة تصفح فائقة السلاسة */
+        #dynamicBg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('../../a.png') no-repeat center center;
+            background-size: cover;
+            z-index: -2;
+        }
+
+        /* غطاء حماية احترافي لزيادة تباين النصوص */
+        .bg-overlay { 
+            position: fixed; inset: 0;
+            background: radial-gradient(circle at top right, rgba(0, 210, 255, 0.1), transparent),
+                        linear-gradient(180deg, rgba(7, 9, 18, 0.85) 0%, #070912 100%); 
+            z-index: -1; 
+        }
+
+        .header {
+            text-align: center; 
+            padding: clamp(60px, 12vh, 100px) 20px 40px;
+            animation: fadeInDown 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        h1 { 
+            font-size: clamp(32px, 8vw, 52px); 
+            font-weight: 900;
+            background: linear-gradient(to bottom, #fff 40%, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            filter: drop-shadow(0 0 15px var(--glow));
+            letter-spacing: -1px;
+        }
+
+        .subtitle { 
+            color: #94a3b8; 
+            font-size: clamp(14px, 4vw, 18px); 
+            margin-top: 15px; 
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        /* شبكة المنتجات */
+        .products-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+            gap: 25px; 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            padding: 20px 25px 160px;
+        }
+
+        /* تصميم الكرت السلس */
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 28px; 
+            border: 1px solid var(--border); 
+            overflow: hidden; 
+            text-decoration: none; 
+            color: white; 
+            transition: transform 0.4s var(--transition), border-color 0.4s var(--transition), box-shadow 0.4s var(--transition);
+            display: flex; 
+            flex-direction: column;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            position: relative;
+            will-change: transform;
+        }
+
+        .card:hover { 
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0, 210, 255, 0.2);
+        }
+
+        /* تأثير الشارة (Label) للمنتجات المميزة */
+        .card::after {
+            content: "SPECIAL";
+            position: absolute; top: 15px; right: -30px;
+            background: var(--accent); color: #000;
+            font-size: 10px; font-weight: 900;
+            padding: 5px 35px; transform: rotate(45deg);
+            z-index: 2; box-shadow: 0 5px 15px rgba(0, 255, 153, 0.3);
+        }
+
+        .card-img-wrapper { 
+            width: 100%; aspect-ratio: 1/1; 
+            background: #000; overflow: hidden; 
+            position: relative;
+        }
+
+        .card img { 
+            width: 100%; height: 100%; 
+            object-fit: cover; opacity: 0; 
+            transition: transform 0.6s var(--transition), opacity 0.4s ease; 
+        }
+
+        .card img.loaded { opacity: 1; }
+        .card:hover img { transform: scale(1.06); }
+
+        .info { padding: 22px; text-align: center; }
+        .name { 
+            font-size: 17px; font-weight: 700; 
+            color: #f1f5f9; margin-bottom: 10px;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+            overflow: hidden; min-height: 48px;
+        }
+
+        .price { 
+            color: var(--accent); font-weight: 900; font-size: 1.4rem; 
+            text-shadow: 0 0 10px rgba(0, 255, 153, 0.2);
+        }
+
+        /* شريط التنقل السفلي السلس */
+        .floating-nav {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            width: 85%; max-width: 420px; 
+            display: flex; justify-content: space-around; align-items: center;
+            background: rgba(13, 17, 23, 0.95);
+            padding: 12px; border-radius: 100px; border: 1px solid var(--border);
+            z-index: 1000; box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+        }
+        
+        .nav-item {
+            width: 55px; height: 55px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            transition: transform 0.3s var(--transition);
+        }
+
+        .nav-item:hover { transform: translateY(-6px); }
+        .nav-item img { width: 26px; height: 26px; }
+
+        .wa-link { background: #25D366; box-shadow: 0 10px 20px rgba(37, 211, 102, 0.2); }
+        .home-link { background: white; box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1); }
+        .fb-link { background: #1877F2; box-shadow: 0 10px 20px rgba(24, 119, 242, 0.2); }
+
+        .home-link img { filter: invert(0); }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* تحسينات الموبايل */
+        @media (max-width: 600px) {
+            .products-grid { 
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 15px; 
+                padding: 10px 15px 140px; 
+            }
+            .header { padding-top: 60px; }
+            .name { font-size: 14px; min-height: 40px; }
+            .price { font-size: 1.2rem; }
+            .card { border-radius: 24px; }
+            .card::after { padding: 3px 25px; font-size: 8px; }
+            .floating-nav { bottom: 20px; padding: 10px; width: 90%; }
+            .nav-item { width: 50px; height: 50px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="dynamicBg"></div>
+    <div class="bg-overlay"></div>
+
+    <header class="header">
+        <h1>حسابات مميزة</h1>
+        <div class="subtitle">نخبة الحسابات النادرة والأسطورية بين يديك</div>
+    </header>
+
+    <div class="products-grid" id="list">
+        <div id="loader-msg" style="grid-column: 1/-1; text-align: center; padding: 100px; opacity: 0.5;">
+            جاري استحضار العروض المميزة...
+        </div>
+    </div>
+
+    <div class="floating-nav">
+        <a href="https://wa.me/218919718809" target="_blank" class="nav-item wa-link" title="واتساب">
+            <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
+        </a>
+        <a href="../index.html" class="nav-item home-link" title="الرئيسية">
+            <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" alt="Home">
+        </a>
+        <a href="https://www.facebook.com/share/1B6gGToRF8/" target="_blank" class="nav-item fb-link" title="فيسبوك">
+            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook">
+        </a>
+    </div>
+
+<script>
+    const _URL = "https://bmcnlmxkfsrpcmjhbixg.supabase.co";
+    const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtY25sbXhrZnNycGNtamhiaXhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NDA1MDcsImV4cCI6MjA5MzMxNjUwN30.CO07kz6XQ2_MLZ1Y0feVttiKkwWqref_k4IfmY11KAw";
+    const sb = supabase.createClient(_URL, _KEY);
+
+    async function loadProducts() {
+        const listDiv = document.getElementById('list');
+        const loaderMsg = document.getElementById('loader-msg');
+
+        try {
+            const { data: prods, error } = await sb
+                .from('products')
+                .select('id, name, price, image_url')
+                .eq('category', 'special_accounts')
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            if (prods && prods.length > 0) {
+                listDiv.innerHTML = ''; 
+                const fragment = document.createDocumentFragment();
+                prods.forEach(p => {
+                    const card = document.createElement('a');
+                    card.href = `product-details.html?id=${p.id}`;
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div class="card-img-wrapper">
+                            <img src="${p.image_url}" onload="this.classList.add('loaded')" loading="lazy">
+                        </div>
+                        <div class="info">
+                            <div class="name">${p.name}</div>
+                            <div class="price">${p.price} <span style="font-size: 12px; font-weight: 500;">د.ل</span></div>
+                        </div>
+                    `;
+                    fragment.appendChild(card);
+                });
+                listDiv.appendChild(fragment);
+            } else {
+                loaderMsg.innerText = "لا توجد منتجات متوفرة حالياً في هذا القسم.";
+            }
+        } catch (err) {
+            console.error(err);
+            loaderMsg.innerText = "حدث خطأ أثناء تحميل البيانات، يرجى المحاولة لاحقاً.";
+            loaderMsg.style.color = "#ff4d4d";
+        }
+    }
+
+    loadProducts();
+</script>
+</body>
+</html>

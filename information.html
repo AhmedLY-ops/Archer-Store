@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>حول Archer Store | منصتكم الرقمية المتكاملة</title>
+    <style>
+        :root {
+            --neon-blue: #00d2ff;
+            --neon-purple: #9d50bb;
+            --glass: rgba(13, 18, 33, 0.96); /* خلفية داكنة ومعتمة بديلة للـ Blur لتحسين الأداء */
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #f1f5f9;
+            --text-dim: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #070912;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-main);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* حاوية مستقلة للخلفية لضمان تمرير ناعم وسلس على الموبايل */
+        #dynamicBg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('a.png') no-repeat center center;
+            background-size: cover;
+            z-index: -3;
+        }
+
+        /* طبقة تظليل ثابتة فوق الخلفية لضمان وضوح النصوص */
+        .bg-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(7, 9, 18, 0.65);
+            z-index: -2;
+        }
+
+        /* توهج الخلفية */
+        .bg-glow {
+            position: fixed;
+            width: 60vw;
+            height: 60vw;
+            max-width: 500px;
+            background: radial-gradient(circle, rgba(0, 210, 255, 0.1) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+        }
+
+        .info-card {
+            width: 90%;
+            max-width: 550px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.7);
+            margin: 40px 0;
+            animation: slideUp 0.5s ease-out forwards;
+            will-change: transform, opacity;
+        }
+
+        /* حاوية اللوجو */
+        .store-logo-container {
+            width: clamp(80px, 20vw, 110px);
+            height: clamp(80px, 20vw, 110px);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.3);
+            background: #111;
+            overflow: hidden;
+        }
+
+        .store-logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        h1 { 
+            margin: 10px 0; 
+            font-size: clamp(1.6rem, 5.5vw, 2.2rem); 
+            color: var(--neon-blue); 
+            font-weight: 800;
+        }
+
+        .nickname { 
+            font-size: clamp(12px, 3.5vw, 14px); 
+            color: var(--text-dim); 
+            margin-top: -5px; 
+            margin-bottom: 25px; 
+            letter-spacing: 0.5px;
+        }
+
+        .bio {
+            font-size: clamp(14px, 4vw, 15px);
+            line-height: 1.8;
+            color: #cbd5e1;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.02);
+            padding: 20px;
+            border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.05);
+            text-align: justify;
+            text-align-last: center;
+        }
+
+        .info-grid {
+            text-align: right;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            border: 1px solid transparent;
+            transition: all 0.25s ease;
+        }
+
+        .info-item:hover {
+            border-color: var(--neon-blue);
+            background: rgba(0, 210, 255, 0.05);
+            transform: translateX(-3px);
+        }
+
+        .info-item i { 
+            font-style: normal; 
+            font-size: 24px; 
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .info-item b { 
+            color: var(--neon-blue); 
+            display: block; 
+            font-size: 12px; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .info-item span { 
+            font-size: 14px; 
+            color: var(--text-main); 
+            word-break: break-word;
+        }
+
+        .back-btn {
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+            text-decoration: none;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            padding: 16px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.25s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .back-btn:hover {
+            box-shadow: 0 15px 30px rgba(0, 210, 255, 0.35);
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        /* تحسين أنيميشن الدخول ليكون خفيفاً وسريعاً */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (min-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .info-item {
+                padding: 20px;
+            }
+            .info-card {
+                padding: 50px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .info-card {
+                padding: 25px 15px;
+                border-radius: 30px;
+            }
+            .info-item {
+                gap: 10px;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="dynamicBg"></div>
+    <div class="bg-overlay"></div>
+    <div class="bg-glow"></div>
+
+    <div class="info-card">
+        <div class="store-logo-container">
+            <img src="logo.png" alt="Archer Store Logo">
+        </div>
+        
+        <h1>Archer Store</h1>
+        <div class="nickname">منصتك الموثوقة للخدمات الرقمية والألعاب</div>
+
+        <p class="bio">
+            مرحباً بكم في <b>Archer Store</b>! نحن مؤسسة متخصصة تسعى لتوفير حلول متكاملة لجميع احتياجاتكم الرقمية والترفيهية. نلتزم بتقديم أفضل المنتجات بأعلى معايير الأمان والسرعة لضمان تجربة مستخدم متميزة تدعمكم في تحقيق الصدارة دائماً.
+        </p>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <i>📍</i>
+                <div>
+                    <b>موقعنا</b>
+                    <span>طرابلس / بوسليم / مقابل مسجد جعفر بن أبي طالب</span>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <i>📞</i>
+                <div>
+                    <b>الدعم الفني</b>
+                    <span>0919718809</span>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <i>🎯</i>
+                <div>
+                    <b>رؤيتنا</b>
+                    <span>الريادة، السرعة الفائقة في التنفيذ، وتوفير الدعم المستمر.</span>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <i>✅</i>
+                <div>
+                    <b>الضمان</b>
+                    <span>منتجات آمنة ومضمونة بنسبة 100% مع خدمة عملاء على مدار الساعة.</span>
+                </div>
+            </div>
+        </div>
+
+        <a href="index.html" class="back-btn">العودة للرئيسية</a>
+    </div>
+
+</body>
+</html>

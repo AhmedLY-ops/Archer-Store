@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- Meta Tags لتحسين SEO والعناوين -->
+    <title>ألعاب الكمبيوتر | Archer Store - أفضل اشتراكات الألعاب</title>
+    <meta name="description" content="استكشف أفضل عروض ألعاب الكمبيوتر في Archer Store. حسابات Steam Offline اقتصادية، وحسابات Full Access أصلية، وحسابات FiveM مميزة بأفضل الأسعار في ليبيا.">
+    <meta name="keywords" content="ألعاب كمبيوتر، Steam Offline، حسابات ستيم، اشتراكات ألعاب، ليبيا، Archer Store, FiveM Accounts">
+    <meta name="author" content="Archer Store">
+    
+    <!-- Open Graph (لتحسين شكل الرابط عند المشاركة على فيسبوك وواتساب) -->
+    <meta property="og:title" content="ألعاب الكمبيوتر | Archer Store">
+    <meta property="og:description" content="وفر مالك واحصل على أضخم الألعاب العالمية. حسابات أوفلاين وأونلاين ملكية كاملة.">
+    <meta property="og:image" content="Steam Online/steamonine.png">
+    <meta property="og:url" content="https://archerstore.netlify.app">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <style>
+        :root { 
+            --primary: #00d2ff; 
+            --accent: #00ff99; 
+            --bg: #070912;
+            --card-bg: rgba(13, 17, 23, 0.9); /* زيادة التعتيم لإلغاء الحاجة للبلور المستهلك للموارد */
+            --border: rgba(255, 255, 255, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            background: var(--bg) url('../a.png') no-repeat center center fixed; 
+            background-size: cover;
+            color: white; 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            margin: 0; padding: 0; min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* طبقة حماية للقراءة */
+        body::before { 
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+            background: radial-gradient(circle at 50% 50%, rgba(7, 9, 18, 0.5), #070912); 
+            z-index: -1; 
+        }
+
+        .header {
+            text-align: center; 
+            padding: clamp(40px, 10vh, 80px) 20px 40px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        h1 { 
+            font-size: clamp(24px, 8vw, 42px); 
+            color: var(--primary); 
+            margin: 0; 
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 30px rgba(0, 210, 255, 0.5);
+        }
+
+        .subtitle { 
+            color: #cbd5e1; 
+            font-size: clamp(14px, 4vw, 17px); 
+            margin-top: 15px; 
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* نظام الشبكة المرن */
+        .container { 
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 20px 20px 140px; 
+            max-width: 1200px; 
+            margin: 0 auto;
+        }
+
+        .cat-card {
+            background: var(--card-bg); 
+            border: 1px solid var(--border); 
+            border-radius: 28px; 
+            padding-bottom: 30px; 
+            text-align: center;
+            text-decoration: none; 
+            color: white; 
+            transition: var(--transition);
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden;
+            height: 100%;
+            will-change: transform; /* تسريع معالجة حركات الكارد */
+        }
+
+        .cat-img-wrapper {
+            width: 100%;
+            height: 200px; 
+            overflow: hidden;
+            position: relative;
+        }
+
+        .cat-img-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 50%;
+            background: linear-gradient(transparent, var(--card-bg));
+        }
+
+        .cat-card img { 
+            width: 100%; height: 100%; object-fit: cover; 
+            transition: transform 0.4s ease;
+            opacity: 0.75;
+        }
+
+        /* تأثيرات التحويم السلسة */
+        .cat-card:hover { 
+            transform: translateY(-5px); 
+            border-color: var(--primary); 
+            box-shadow: 0 15px 30px rgba(0, 210, 255, 0.15); 
+            background: rgba(18, 24, 32, 0.95);
+        }
+
+        .cat-card:hover img { transform: scale(1.05); opacity: 0.9; }
+
+        .cat-card h2 { 
+            color: var(--accent); 
+            font-size: 22px; 
+            margin: 20px 0 10px; 
+            padding: 0 20px;
+        }
+
+        .cat-card p { 
+            color: #94a3b8; 
+            font-size: 14.5px; 
+            margin: 0; 
+            padding: 0 25px;
+            flex-grow: 1;
+        }
+
+        /* شريط التنقل السفلي المحسن للأداء */
+        .floating-nav {
+            position: fixed; 
+            bottom: 20px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            width: 90%; 
+            max-width: 380px; 
+            display: flex; 
+            justify-content: space-around;
+            background: rgba(15, 23, 42, 0.95); /* زيادة التعتيم لتقليل جهد الشفافية والبلور */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 12px; 
+            border-radius: 100px; 
+            border: 1px solid var(--border);
+            z-index: 1000; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            animation: fadeInUp 0.5s ease-out backwards;
+        }
+        
+        .nav-item {
+            width: 54px; height: 54px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .nav-item:active { transform: scale(0.95); }
+        .nav-item img { width: 26px; height: 26px; }
+
+        .wa-link { background: linear-gradient(135deg, #25D366, #128C7E); }
+        .home-link { background: var(--primary); box-shadow: 0 0 20px rgba(0, 210, 255, 0.3); }
+        .fb-link { background: linear-gradient(135deg, #1877F2, #0a56b9); }
+        .home-link img { filter: brightness(0) invert(1); }
+
+        /* Animations */
+        @keyframes fadeInDown { 
+            from { opacity: 0; transform: translateY(-20px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        @keyframes fadeInUp { 
+            from { opacity: 0; transform: translateY(30px) translateX(-50%); } 
+            to { opacity: 1; transform: translateY(0) translateX(-50%); } 
+        }
+
+        /* الشاشات الصغيرة والموبايل */
+        @media (max-width: 768px) {
+            .floating-nav {
+                backdrop-filter: none; /* الغاء تأثير البلور بالكامل على الموبايل لسرعة تصفح فائقة */
+                -webkit-backdrop-filter: none;
+                background: rgba(15, 23, 42, 0.98);
+            }
+        }
+
+        @media (max-width: 400px) {
+            .container { grid-template-columns: 1fr; gap: 15px; }
+            .cat-img-wrapper { height: 170px; }
+            .floating-nav { width: 95%; padding: 10px; bottom: 15px; }
+            .nav-item { width: 48px; height: 48px; }
+            .nav-item img { width: 22px; height: 22px; }
+        }
+
+        /* منع مشاكل العرض في الوضع الأفقي للهواتف */
+        @media (max-height: 500px) {
+            .floating-nav { position: relative; margin: 20px auto; bottom: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h1>ألعاب الكمبيوتر | PC Games</h1>
+        <div class="subtitle">استمتع بأضخم العناوين العالمية بأفضل الأسعار وطرق دفع سهلة</div>
+    </header>
+
+    <main class="container">
+        <!-- قسم الأوفلاين -->
+        <a href="Steam Offline/steam_offline.html" class="cat-card">
+            <div class="cat-img-wrapper">
+                <img src="Steam Offline/steamoffline.png" alt="Steam Offline Games">
+            </div>
+            <h2>Steam Offline</h2>
+            <p>الخيار الأفضل للميزانية. العب مود القصة (Story Mode) لأحدث الألعاب أوفلاين مع توفير أكثر من 90% من السعر الأصلي.</p>
+        </a>
+
+        <!-- قسم الأونلاين -->
+        <a href="Steam Online/steam_accounts.html" class="cat-card">
+            <div class="cat-img-wrapper">
+                <img src="Steam Online/steamonine.png" alt="Steam Original Accounts">
+            </div>
+            <h2>Steam Accounts</h2>
+            <p>حسابات أصلية بملكية كاملة. إمكانية تغيير كافة البيانات، اللعب أونلاين، وتفعيل ميزات ستيم بالكامل.</p>
+        </a>
+
+        <!-- قسم حسابات ألعاب مميزة -->
+        <a href="Special/special_accounts.html" class="cat-card">
+            <div class="cat-img-wrapper">
+                <img src="a.png" alt="Special Gaming Accounts">
+            </div>
+            <h2>حسابات ألعاب مميزة</h2>
+            <p>حسابات مجهزة خصيصاً لعشاق FiveM و Grand V، وحسابات نادرة تحتوي على إضافات ومستويات عالية.</p>
+        </a>
+    </main>
+
+    <!-- شريط التنقل السفلي -->
+    <nav class="floating-nav">
+        <a href="https://wa.me/218919718809" target="_blank" class="nav-item wa-link" aria-label="تواصل عبر واتساب">
+            <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
+        </a>
+        <a href="../index.html" class="nav-item home-link" aria-label="العودة للرئيسية">
+            <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" alt="Home">
+        </a>
+        <a href="https://www.facebook.com/share/1B6gGToRF8/" target="_blank" class="nav-item fb-link" aria-label="تابعنا على فيسبوك">
+            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook">
+        </a>
+    </nav>
+
+</body>
+</html>

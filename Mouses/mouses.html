@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- وسوم Meta لتحسين SEO ومشاركة الروابط -->
+    <title>الماوسات الاحترافية | Archer Store</title>
+    <meta name="description" content="تسوق أفضل الماوسات الاحترافية للألعاب (Gaming Mouses) من Archer Store. أداء عالٍ، دقة متناهية، وأسعار تنافسية in ليبيا.">
+    <meta name="keywords" content="ماوس قيمنق, Archer Store, ماوسات احترافية, ملحقات ألعاب ليبيا, Razer, Logitech, SteelSeries">
+    <meta name="author" content="Archer Store">
+    
+    <!-- Open Graph (Facebook, WhatsApp) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="قسم الماوسات الاحترافية | Archer Store">
+    <meta property="og:description" content="ارتقِ بمستوى لعبك مع تشكيلة الماوسات المختارة بعناية من متجرنا.">
+    <meta property="og:image" content="../logo.png">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="الماوسات الاحترافية | Archer Store">
+    <meta name="twitter:description" content="أداء وسرعة لا تضاهى مع أفضل ماوسات الألعاب.">
+
+    <!-- مكتبة Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        :root { 
+            --primary: #00d2ff; 
+            --accent: #00ff99; 
+            --bg: #070912;
+            --card-bg: rgba(13, 17, 23, 0.95); /* زيادة التعتيم للتخلص من الـ Blur المستهلك للموارد */
+            --border: rgba(255, 255, 255, 0.08);
+            --smooth: all 0.25s ease; /* تقليل وقت الحركة وتبسيط الأنميشن لراحة الهاتف */
+        }
+
+        body { 
+            background: #070912 url('../a.png') no-repeat center center fixed; 
+            background-size: cover; 
+            color: white; 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+
+        body::before { 
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+            background: radial-gradient(circle at center, rgba(11, 17, 26, 0.5), #070912); 
+            z-index: -1; 
+        }
+
+        /* تحسين الهيدر */
+        .header {
+            text-align: center; 
+            padding: clamp(40px, 10vw, 80px) 20px 30px;
+            animation: fadeInDown 0.5s ease-out forwards;
+        }
+        
+        h1 { 
+            font-size: clamp(24px, 7vw, 42px); 
+            color: var(--primary); 
+            margin: 0; 
+            letter-spacing: 1px;
+            font-weight: 800;
+            text-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
+        }
+
+        .subtitle { 
+            color: #94a3b8; 
+            font-size: clamp(13px, 3vw, 16px); 
+            margin-top: 8px; 
+            opacity: 0.9; 
+        }
+
+        /* شبكة المنتجات المرنة */
+        .products-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 25px; 
+            width: 92%; 
+            max-width: 1300px; 
+            margin: 0 auto;
+            padding: 20px 0 150px;
+        }
+
+        .card { 
+            background: var(--card-bg); 
+            border: 1px solid var(--border); 
+            border-radius: 30px; 
+            overflow: hidden; 
+            text-decoration: none; 
+            color: white; 
+            transition: var(--smooth); 
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transform: translateY(20px);
+            will-change: transform, opacity; /* تهيئة المتصفح لتسريع رندرة كروت المنتجات */
+        }
+
+        .card.show { opacity: 1; transform: translateY(0); }
+
+        .card:hover { 
+            transform: translateY(-5px); 
+            border-color: var(--primary); 
+            box-shadow: 0 15px 30px rgba(0, 210, 255, 0.15);
+        }
+
+        .img-container {
+            width: 100%;
+            height: 260px;
+            background: rgba(255,255,255,0.01);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transition: transform 0.4s ease;
+            opacity: 0.85;
+        }
+
+        .card:hover img {
+            transform: scale(1.05);
+            opacity: 1;
+        }
+
+        .info-box { 
+            padding: 22px; 
+            text-align: center; 
+            background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.4));
+        }
+
+        .name { 
+            font-size: 19px; 
+            color: #f8fafc; 
+            font-weight: 700; 
+            margin-bottom: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .price-tag { 
+            background: linear-gradient(135deg, rgba(0, 255, 153, 0.1), rgba(0, 210, 255, 0.1));
+            color: var(--accent); 
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 1.15rem;
+            font-weight: 800; 
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(0, 255, 153, 0.2);
+        }
+
+        /* التنقل العائم السفلية المحسن */
+        .floating-nav {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            width: fit-content; min-width: 280px; display: flex; justify-content: center; gap: 20px;
+            background: rgba(10, 15, 25, 0.95); 
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 12px 30px; border-radius: 100px; border: 1px solid var(--border);
+            z-index: 1000; box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+        }
+        
+        .nav-item {
+            width: 48px; height: 48px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; transition: var(--smooth);
+            text-decoration: none;
+        }
+        .nav-item img { width: 22px; }
+        .wa-link { background: #25D366; }
+        .home-link { background: var(--primary); }
+        .fb-link { background: #1877F2; }
+        
+        .nav-item:hover { transform: scale(1.1) translateY(-3px); }
+
+        /* الأنيميشن */
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* استجابة الموبايل */
+        @media (max-width: 768px) {
+            .products-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; width: 95%; }
+            .img-container { height: 180px; }
+            .info-box { padding: 15px; }
+            .name { font-size: 15px; margin-bottom: 8px; }
+            .price-tag { font-size: 0.9rem; padding: 6px 12px; }
+            .floating-nav { 
+                bottom: 20px; 
+                padding: 10px 20px; 
+                min-width: 240px; 
+                backdrop-filter: none; /* إلغاء البلور تماماً في شاشات الموبايل لمنع أي تقطيع */
+                -webkit-backdrop-filter: none;
+                background: rgba(10, 15, 25, 0.98);
+            }
+        }
+
+        @media (max-width: 400px) {
+            .products-grid { grid-template-columns: 1fr; }
+            .img-container { height: 220px; }
+        }
+
+        #loading-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 100px 20px;
+            color: var(--primary);
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h1>الماوسات | MOUSES</h1>
+        <div class="subtitle">نخبة الماوسات العالمية بين يديك</div>
+    </header>
+
+    <div class="products-grid" id="list">
+        <div id="loading-state">جاري تجهيز العتاد...</div>
+    </div>
+
+    <div class="floating-nav">
+        <a href="https://wa.me/218919718809" target="_blank" class="nav-item wa-link" title="واتساب">
+            <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
+        </a>
+        <a href="../index.html" class="nav-item home-link" title="الرئيسية">
+            <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" style="filter: brightness(0) invert(1);" alt="Home">
+        </a>
+        <a href="https://www.facebook.com/share/1B6gGToRF8/" target="_blank" class="nav-item fb-link" title="فيسبوك">
+            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook">
+        </a>
+    </div>
+
+<script>
+    const _URL = "https://bmcnlmxkfsrpcmjhbixg.supabase.co";
+    const _KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtY25sbXhrZnNycGNtamhiaXhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NDA1MDcsImV4cCI6MjA5MzMxNjUwN30.CO07kz6XQ2_MLZ1Y0feVttiKkwWqref_k4IfmY11KAw";
+    
+    const sb = supabase.createClient(_URL, _KEY);
+
+    async function loadProducts() {
+        const listContainer = document.getElementById('list');
+
+        try {
+            const { data: prods, error } = await sb
+                .from('products')
+                .select('*')
+                .eq('category', 'mouses')
+                .order('id', { ascending: false });
+
+            if (error) throw error;
+
+            if (!prods || prods.length === 0) {
+                listContainer.innerHTML = "<div id='loading-state'>القسم فارغ حالياً، انتظرونا قريباً!</div>";
+                return;
+            }
+
+            listContainer.innerHTML = prods.map((p, index) => `
+                <a href="product-details.html?id=${p.id}" class="card" style="transition-delay: ${index * 0.03}s">
+                    <div class="img-container">
+                        <img src="${p.image_url}" loading="lazy" alt="${p.name}">
+                    </div>
+                    <div class="info-box">
+                        <div class="name">${p.name}</div>
+                        <div class="price-tag">
+                            ${p.price} <span>د.ل</span>
+                        </div>
+                    </div>
+                </a>
+            `).join('');
+
+            // تفعيل الأنميشن بترتيب تسلسلي سريع وسلس
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    document.querySelectorAll('.card').forEach(c => c.classList.add('show'));
+                }, 50);
+            });
+
+        } catch (err) {
+            console.error("Fetch Error:", err);
+            listContainer.innerHTML = "<div id='loading-state'>حدث خطأ أثناء تحميل البيانات.</div>";
+        }
+    }
+
+    loadProducts();
+</script>
+</body>
+</html>
